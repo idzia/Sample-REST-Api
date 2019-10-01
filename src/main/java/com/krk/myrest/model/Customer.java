@@ -5,7 +5,9 @@ package com.krk.myrest.model;
 //import javax.persistence.Entity;
 //import javax.persistence.Id;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 
 //@Entity
 public class Customer {
@@ -15,10 +17,11 @@ public class Customer {
     private Long id;
 
 //    @Column
-    @NotEmpty
+    @NotEmpty (message = "name can not be empty")
     private String name;
 
 //    @Column
+    @Valid
     private Adress adress;
 
     public Customer() {

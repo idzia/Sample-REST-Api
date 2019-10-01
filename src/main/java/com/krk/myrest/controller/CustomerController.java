@@ -3,8 +3,10 @@ package com.krk.myrest.controller;
 import com.krk.myrest.model.Customer;
 import com.krk.myrest.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -38,13 +40,21 @@ public class CustomerController {
 //    }
     @GetMapping("/customers/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable Long id) {
-        Customer customer = customerService.findCustomerById(id);
-
-        return new ResponseEntity<>(customer, HttpStatus.OK);
+        if (customerService.findCustomerById(id)==null) {
+//            HttpHeaders responseHeaders = new HttpHeaders();
+//            responseHeaders.add("find by ID","This ID does not exist");
+//            return new ResponseEntity<>(new Customer(), responseHeaders, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Customer(), HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(customerService.findCustomerById(id), HttpStatus.OK);
+        }
+//        Customer customer = customerService.findCustomerById(id);
+//
+//        return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
     @PostMapping("/customers")
-    public ResponseEntity<Customer> saveNewCustomer(@RequestBody @Valid Customer newCustomer) {
+    public ResponseEntity<Customer> saveNewCustomer(@Valid @RequestBody Customer newCustomer) {
         Customer customer = customerService.saveCustomer(newCustomer);
         return new ResponseEntity<>(customer, HttpStatus.CREATED);
     }

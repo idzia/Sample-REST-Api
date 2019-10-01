@@ -17,11 +17,11 @@ public class Adress {
     private String city;
 
 //    @Column
-    @NotEmpty
+    @NotEmpty (message="street can not be empty")
     private String street;
 
 //    @Column
-    @Pattern(regexp = "^[0-9]{2}-[0-9]{3}$")
+    @Pattern(regexp = "^[0-9]{2}-[0-9]{3}$", message = "zip code must be formatted XX-XXX")
     private String zipCode;
 
     public Adress() {
