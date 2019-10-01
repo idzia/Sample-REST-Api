@@ -1,19 +1,17 @@
 package com.krk.myrest.model;
 
-//
 //import javax.persistence.Column;
 //import javax.persistence.Entity;
 //import javax.persistence.Id;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.PositiveOrZero;
 
 //@Entity
 public class Customer {
 
-    public static Long NEXT_ID = 0L;
-
+//    @PositiveOrZero
     private Long id;
 
 //    @Column
@@ -28,8 +26,6 @@ public class Customer {
     }
 
     public Customer(String name, Adress adress) {
-        NEXT_ID  += 1;
-        this.id = NEXT_ID;
         this.name = name;
         this.adress = adress;
     }

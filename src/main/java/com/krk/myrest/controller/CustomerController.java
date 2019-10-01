@@ -3,11 +3,10 @@ package com.krk.myrest.controller;
 import com.krk.myrest.model.Customer;
 import com.krk.myrest.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -22,11 +21,6 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
-//    @GetMapping("/customers")
-//    public Collection<Customer> getAllCustomers() {
-//        return customerService.findAll();
-//    }
-
     @GetMapping("/customers")
     public ResponseEntity<Collection<Customer>> getAllCustomers() {
         Collection<Customer> customerCollection = customerService.findAll();
@@ -34,23 +28,17 @@ public class CustomerController {
         return new ResponseEntity<>(customerCollection, HttpStatus.OK);
     }
 
-//    @GetMapping("/customers/{id}")
-//    public Customer getCustomerById(@PathVariable Long id) {
-//        return customerService.findCustomerById(id);
-//    }
     @GetMapping("/customers/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable Long id) {
-        if (customerService.findCustomerById(id)==null) {
-//            HttpHeaders responseHeaders = new HttpHeaders();
-//            responseHeaders.add("find by ID","This ID does not exist");
-//            return new ResponseEntity<>(new Customer(), responseHeaders, HttpStatus.BAD_REQUEST);
-            return new ResponseEntity<>(new Customer(), HttpStatus.BAD_REQUEST);
+
+        if (id < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect ID number");
+        }
+        if (customerService.findCustomerById(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(customerService.findCustomerById(id), HttpStatus.OK);
         }
-//        Customer customer = customerService.findCustomerById(id);
-//
-//        return new ResponseEntity<>(customer, HttpStatus.OK);
     }
 
     @PostMapping("/customers")
@@ -59,41 +47,38 @@ public class CustomerController {
         return new ResponseEntity<>(customer, HttpStatus.CREATED);
     }
 
-//    @PutMapping("customers/{id}")
-//    public Long updateCustomer(@RequestBody Customer newCustomer, @PathVariable Long id) {
-//
-//        Customer customerToUpdate = customerService.findCustomerById(id);
-//
-//        customerToUpdate.setName(newCustomer.getName());
-//        customerToUpdate.setAdress(newCustomer.getAdress());
-//
-//        return customerService.saveCustomer(customerToUpdate);
-//    }
-
     @PutMapping("customers/{id}")
-    public ResponseEntity<Customer> updateCustomer(@RequestBody Customer newCustomer, @PathVariable Long id) {
+    public ResponseEntity<Customer> updateCustomer(@Valid @RequestBody Customer newCustomer, @PathVariable Long id) {
 
-        Customer customerToUpdate = customerService.findCustomerById(id);
+        if (customerService.findCustomerById(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Incorrect ID number");
 
-        customerToUpdate.setName(newCustomer.getName());
-        customerToUpdate.setAdress(newCustomer.getAdress());
+        } else {
+            Customer customerToUpdate = customerService.findCustomerById(id);
 
-        customerService.saveCustomer(customerToUpdate);
+            updateBySetters(customerToUpdate, newCustomer);
 
-        return new ResponseEntity<>(customerToUpdate, HttpStatus.OK);
+            customerService.saveCustomer(customerToUpdate);
 
+            return new ResponseEntity<>(customerToUpdate, HttpStatus.OK);
+        }
     }
 
-//    @DeleteMapping("customers/{id}")
-//    public void deleteCustomer(@PathVariable Long id) {
-//        customerService.deleteCustomer(id);
-//    }
+    private void updateBySetters(Customer customerToUpdate, Customer newCustomer) {
+
+        customerToUpdate.setName(newCustomer.getName());
+        customerToUpdate.getAdress().setCity(newCustomer.getAdress().getCity());
+        customerToUpdate.getAdress().setStreet(newCustomer.getAdress().getStreet());
+        customerToUpdate.getAdress().setZipCode(newCustomer.getAdress().getZipCode());
+    }
 
     @DeleteMapping("customers/{id}")
     public ResponseEntity<String> deleteCustomer(@PathVariable Long id) {
-        customerService.deleteCustomer(id);
-        return new ResponseEntity<>("", HttpStatus.OK);
+        if (customerService.findCustomerById(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Incorrect ID number");
+        } else {
+            customerService.deleteCustomer(id);
+            return new ResponseEntity<>("", HttpStatus.OK);
+        }
     }
-
-
 }

@@ -28,8 +28,6 @@ public class Adress {
     }
 
     public Adress(String city, String street, String zipCode) {
-        Customer.NEXT_ID  += 1;
-        this.id = Customer.NEXT_ID;
         this.city = city;
         this.street = street;
         this.zipCode = zipCode;
